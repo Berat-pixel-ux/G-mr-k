@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gümrük Kapısı Uygulaması</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 300px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .btn-group {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .btn-group button {
+      flex: 1;
+    }
+    #result {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    #history {
+      margin-top: 20px;
+      background-color: #e6e6e6;
+      padding: 10px;
+      border-radius: 5px;
+      max-height: 150px;
+      overflow-y: auto;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Gümrük Kapısı Uygulaması</h2>
+
+    <label for="isim">Kişi Seç:</label>
+    <select id="isim">
+      <option>Oğuz</option>
+      <option>Ali</option>
+      <option>Furkan</option>
+      <option>Çiğdem</option>
+    </select>
+
+    <label for="esyaAra">Eşya Ara:</label>
+    <input type="text" id="esyaAra" placeholder="Eşya ismi yaz..." oninput="filtreleEsyalar()">
+
+    <label for="esya">Eşya Seç:</label>
+    <select id="esya"></select>
+
+    <label for="admin">Admin Onayı (şifre):</label>
+    <input type="password" id="admin" placeholder="********">
+
+    <div class="btn-group">
+      <button onclick="onayla()">Girişi Onayla</button>
+      <button onclick="reddet()" style="background-color:#f88">Girişi Reddet</button>
+    </div>
+
+    <button onclick="gecmisiSil()" style="background-color:#ccc">Geçmişi Temizle</button>
+
+    <div id="result"></div>
+    <div id="history">
+      <strong>Geçmiş Kayıtları:</strong>
+      <ul id="logList"></ul>
+    </div>
+  </div>
+
+  <script>
+    const tumEsyalar = [
+      "Çanta", "Laptop", "Telefon", "Valiz", "Tablet", "Kamera", "Kıyafet", "Ayakkabı", "Kitap", "Makyaj Çantası",
+      "Yiyecek", "İçecek", "Müzik Aleti", "Oyuncak", "Elektronik Alet", "Evcil Hayvan Taşıma Kutusu", "Bisiklet Parçası",
+      "Saat", "Mücevher", "Tıbbi Malzeme"
+    ];
+
+    function listeleEsyalar(filtre = "") {
+      const esyaSec = document.getElementById("esya");
+      esyaSec.innerHTML = "";
+      tumEsyalar.filter(e => e.toLowerCase().includes(filtre.toLowerCase())).forEach(esya => {
+        const option = document.createElement("option");
+        option.textContent = esya;
+        esyaSec.appendChild(option);
+      });
+    }
+
+    function filtreleEsyalar() {
+      const filtre = document.getElementById("esyaAra").value;
+      listeleEsyalar(filtre);
+    }
+
+    function kontrolEt() {
+      const adminSifre = document.getElementById("admin").value;
+      return adminSifre === "9780";
+    }
+
+    function onayla() {
+      if (!kontrolEt()) {
+        document.getElementById("result").innerText = "❌ Admin onayı başarısız!";
+        document.getElementById("result").style.color = "red";
+        return;
+      }
+      const isim = document.getElementById("isim").value;
+      const esya = document.getElementById("esya").value;
+      const now = new Date();
+      const tarih = now.toLocaleString("tr-TR");
+      const mesaj = "✅ " + isim + " kişisi " + esya + " ile giriş yaptı. (" + tarih + ")";
+      document.getElementById("result").innerText = mesaj;
+      document.getElementById("result").style.color = "green";
+      const li = document.createElement("li");
+      li.innerText = mesaj;
+      document.getElementById("logList").prepend(li);
+    }
+
+    function reddet() {
+      if (!kontrolEt()) {
+        document.getElementById("result").innerText = "❌ Admin onayı başarısız!";
+        document.getElementById("result").style.color = "red";
+        return;
+      }
+      const isim = document.getElementById("isim").value;
+      const esya = document.getElementById("esya").value;
+      const now = new Date();
+      const tarih = now.toLocaleString("tr-TR");
+      const mesaj = "⛔ " + isim + " kişisinin " + esya + " ile girişi reddedildi. (" + tarih + ")";
+      document.getElementById("result").innerText = mesaj;
+      document.getElementById("result").style.color = "darkred";
+      const li = document.createElement("li");
+      li.innerText = mesaj;
+      li.style.color = "darkred";
+      document.getElementById("logList").prepend(li);
+    }
+
+    function gecmisiSil() {
+      if (!kontrolEt()) {
+        document.getElementById("result").innerText = "❌ Admin şifresi yanlış! Geçmiş silinemedi.";
+        document.getElementById("result").style.color = "red";
+        return;
+      }
+      document.getElementById("logList").innerHTML = "";
+      document.getElementById("result").innerText = "📁 Geçmiş başarıyla silindi.";
+      document.getElementById("result").style.color = "black";
+    }
+
+    window.onload = () => listeleEsyalar();
+  </script>
+</body>
+</html>
